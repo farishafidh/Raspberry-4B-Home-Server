@@ -1,0 +1,22 @@
+services:
+  cups:
+    image: anujdatar/cups
+    container_name: cups
+    environment:
+      - CUPSADMIN=user-cups
+      - CUPSPASSWORD=password_cups
+      - TZ="Asia/Jakarta"
+    volumes:
+      - /media/fileserver/docker-configs/cups:/etc/cups
+    ports:
+      - 631:631
+    devices:
+      - /dev/bus/usb:/dev/bus/usb
+    networks:
+      - network
+    restart: unless-stopped
+
+networks:
+  network:
+    name: serverrumah
+    external: true
