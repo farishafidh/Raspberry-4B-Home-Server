@@ -344,7 +344,7 @@ networks:
 
 Berikut contoh dari file `docker-compose.yml` saya,
 
-https://github.com/farishafidh/Raspberry-4B-Home-Server/tree/8f1808572e83259800f706264b88a9cd1fe99fdf/docker_compose_template/cups
+https://github.com/farishafidh/Raspberry-4B-Home-Server/blob/8f1808572e83259800f706264b88a9cd1fe99fdf/docker_compose_template/jellyfin/docker-compose.yml#L1-L32
 
 <!-- ```bash
 services:
