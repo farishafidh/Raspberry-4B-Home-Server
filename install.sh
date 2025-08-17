@@ -4,9 +4,8 @@
 # Script Instalasi Projek Home Server
 # ===================================
 
-# CATATAN UNTUK FARIS
-# 1. HAPUS CONDITIONAL STATEMENT UNTUK MEMERIKSA APAKAH SUATU COMMAND TIDAK DAPAT BERJALAN KARENA
-#    SUDAH DIJALANKAN SEBELUMNYA UNTUK PENGETESAN
+# CATATAN
+# 1. CONDITIONAL STATEMENT DIGUNAKAN UNTUK ANTISIPASI SCRIPT DIJALANKAN LEBIH SEKALI DAN MENGAKIBATKAN EXIT STATUS NON-ZERO
 # 2. BUAT UNINSTALL SCRIPT UNTUK MENGHAPUS KONFIGURASI
 
 # Menghentikan script saat ada command yang gagal dijalankan
@@ -29,10 +28,11 @@ buat_notifikasi() {
 STATIC_IP=192.168.1.50/24
 GATEWAY=192.168.1.1
 DNS=192.168.1.1,8.8.8.8,8.8.4.4
-NAMA_HARD_DRIVE=/dev/sdb #pada OS Debian, external hard drive dimulai dari SDB
-SSD_MOUNT_PATH=/media/fileserver
-DOCKER_DATA_PATH=/media/fileserver/docker
-DOCKER_CONFIG_PATH=/media/fileserver/
+HARD_DRIVE_PATH=/dev/sda #pada OS Debian, external hard drive dimulai dari SDB. Raspbian dari SDA
+MOUNT_PATH=/media/extStorage
+FILE_SERVER_PATH=/media/extStorage/fileserver
+DOCKER_DATA_PATH=/media/extStorage/docker
+DOCKER_CONFIG_PATH=/media/extStorage/
 HOME_DIR_PATH=/home/"$SUDO_USER"
 
 # --- Cek Hak Akses Root ---
@@ -50,30 +50,15 @@ fungsi_update_sistem(){
     buat_notifikasi "Update Sistem Berhasil!"
 }
 
-# --- Konfigurasi Network ---
-fungsi_konfigurasi_network() {
-    buat_notifikasi "Mengubah Konfigurasi Network..."
-    apt-get install network-manager -y
-    local NAMA_NETWORK_DEVICE=$(nmcli -t -f general.devices connection show Wired\ connection\ 1 | cut -d: -f2)
-    nmcli device modify "$NAMA_NETWORK_DEVICE" \
-        ipv4.method manual \
-        ipv4.addresses "$STATIC_IP" \
-        ipv4.gateway "$GATEWAY" \
-        ipv4.dns "$DNS"
-    systemctl restart NetworkManager
-    buat_notifikasi "Perubahan Konfigurasi Network Berhasil!" 
-}
-
 # --- Mount Storage untuk File Server ---
 fungsi_mount_storage() {
     buat_notifikasi "Mounting Storage..."
-    # Sementara menggunakan settingan default dari Raspberry Pi 3/4. Raspberry Pi 5 perlu input dari user
     # Next version: add a function to allow user to input their hard_drive_name and check if it's available/readable on system
     # Gunakan sudo fdisk -l untuk memeriksa nama hard drive yang hendak digunakan
     local TIPE_DEVICE
     local UUID_DEVICE
-    TIPE_DEVICE=$(blkid -s TYPE -o value "$NAMA_HARD_DRIVE")
-    UUID_DEVICE=$(blkid -s UUID -o value "$NAMA_HARD_DRIVE")
+    TIPE_DEVICE=$(blkid -s TYPE -o value "$HARD_DRIVE_PATH")
+    UUID_DEVICE=$(blkid -s UUID -o value "$HARD_DRIVE_PATH")
 
     # Memeriksa jika storage belum memiliki filesystem format
     if [ -z "$TIPE_DEVICE" ] || [ -z "$UUID_DEVICE" ]; then
@@ -89,24 +74,24 @@ fungsi_mount_storage() {
     
     # Unmount storage jika sudah di-mounting ke sebuah directory
     ## Note for myself: Kalau storage sudah di-mounting dan command mount di-execute kembali, akan menghasilkan command exit dengan non-zero status
-    if grep -qs "$NAMA_HARD_DRIVE" /proc/mounts; then
-        umount "$NAMA_HARD_DRIVE"
+    if grep -qs "$HARD_DRIVE_PATH" /proc/mounts; then
+        umount "$HARD_DRIVE_PATH"
     fi
 
     # Mounting
-    if [ ! -d "$SSD_MOUNT_PATH" ]; then
-        mkdir "$SSD_MOUNT_PATH"
+    if [ ! -d "$MOUNT_PATH" ]; then
+        mkdir "$MOUNT_PATH"
     fi
-    mount "$NAMA_HARD_DRIVE" "$SSD_MOUNT_PATH"
+    mount "$HARD_DRIVE_PATH" "$MOUNT_PATH"
 
     # Konfigurasi dan Backup fstab
     if [ ! -f /etc/fstab.backup ]; then
         # Menghindari kasus script dijalankan lebih dari sekali sehingga backup fstab sudah bukan bawaan default lagi
         cp /etc/fstab /etc/fstab.backup
     fi
-    if ! grep -qs "$NAMA_HARD_DRIVE" /etc/fstab; then
+    if ! grep -qs "$HARD_DRIVE_PATH" /etc/fstab; then
         # Menghindari kasus script dijalankan lebih dari sekali sehingga entry menjadi duplikat
-        echo ""$UUID_DEVICE" "$NAMA_HARD_DRIVE" "$TIPE_DEVICE" defaults,auto,users,rw,nofail,noatime 0 0" | tee -a /etc/fstab > /dev/null
+        echo ""$UUID_DEVICE" "$HARD_DRIVE_PATH" "$TIPE_DEVICE" defaults,auto,users,rw,nofail,noatime 0 0" | tee -a /etc/fstab > /dev/null
     fi
     systemctl daemon-reload
     buat_notifikasi "Mounting Storage Berhasil!"
@@ -116,8 +101,8 @@ fungsi_mount_storage() {
 fungsi_install_samba() {
     buat_notifikasi "Meng-install dan konfigurasi Samba..."
     apt-get install -y samba
-    if ! grep -qs /media/fileserver /etc/samba/smb.conf; then
-        printf "[fileserver]\npath = "$SSD_MOUNT_PATH"\nwriteable = yes\nbrowseable = yes\npublic = no" | tee -a /etc/samba/smb.conf > /dev/null
+    if ! grep -qs /media/extStorage/fileserver /etc/samba/smb.conf; then
+        printf "[fileserver]\npath = "$MOUNT_PATH"\nwriteable = yes\nbrowseable = yes\npublic = no" | tee -a /etc/samba/smb.conf > /dev/null
     fi
 
     # Membuat user untuk akses Samba Share
@@ -131,7 +116,7 @@ fungsi_install_samba() {
     fi
 
     # Untuk saat ini belum menemukan solusi jika saat script dijalankan lebih dari sekali karena suatu masalah,
-    # kemudian menginput samba-password yang sama akan memberikan command exit non-zero karena password yang diinputkan sama
+    # kemudian menginput samba-password yang sama akan memberikan command exit non-zero karena password yang diinputkan sama dengan sebelumnya.
     # Solusi sementara:
     # 1. Memeriksa apakah user tersebut sudah memiliki samba-password kemudian command smbpasswd akan dilewati
     # 2. Meng-input kan password yang berbeda saat inisialisasi script kemudian mengubahnya kembali setelah instalasi script selesai
@@ -141,7 +126,7 @@ fungsi_install_samba() {
     else
         echo "User Sudah Memiliki Password Samba"
     fi
-    chown -R "$USER_SAMBA":"$USER_SAMBA" "$SSD_MOUNT_PATH"
+    chown -R "$USER_SAMBA":"$USER_SAMBA" "$MOUNT_PATH"
     buat_notifikasi "Install dan Konfigurasi Samba Berhasil!"
 }
 
@@ -242,11 +227,25 @@ fungsi_run_docker_app() {
     docker run -d -p 8000:8000 -p 9443:9443 -p 9000:9000 \
     --name portainer \
     --restart=always \
-    -v /var/run/docker.sock:/var/run/docker.sock -v /media/fileserver/docker-services/portainer:/data \
+    -v /var/run/docker.sock:/var/run/docker.sock -v /media/extStorage/docker-services/portainer:/data \
     portainer/portainer-ce:lts
     buat_notifikasi "Portainer berhasil dijalankan!"
 
     buat_notifikasi "Semua Docker App berhasil dijalankan!"
+}
+
+# --- Konfigurasi Network ---
+fungsi_konfigurasi_network() {
+    buat_notifikasi "Mengubah Konfigurasi Network..."
+    apt-get install network-manager -y
+    local NAMA_NETWORK_DEVICE=$(nmcli -t -f general.devices connection show Wired\ connection\ 1 | cut -d: -f2)
+    nmcli device modify "$NAMA_NETWORK_DEVICE" \
+        ipv4.method manual \
+        ipv4.addresses "$STATIC_IP" \
+        ipv4.gateway "$GATEWAY" \
+        ipv4.dns "$DNS"
+    buat_notifikasi "Anda akan terputus dari akses SSH karena IP sudah berbeda, mohon akses kembali menggunakan IP 192.168.1.50" 
+    systemctl restart NetworkManager
 }
 
 main(){
@@ -260,6 +259,7 @@ main(){
     fungsi_menambahkan_config_file_docker_apps
     fungsi_membuat_network_docker
     fungsi_run_docker_app
+    fungsi_konfigurasi_network
     buat_notifikasi "Instalasi Home Server Berhasil!"
 }
 
