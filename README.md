@@ -1,4 +1,4 @@
-# Raspberry 4B Server Rumah Sederhana | Indonesia
+# Raspberry 4B Server Rumah Sederhana
 
 ## Table of Contents
 - [Ringkasan](#-ringkasan)
