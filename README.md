@@ -455,9 +455,9 @@ devices:
   - /dev/video12:/dev/video12
 ```
 
-Berikut contoh file konfigurasi
+Berikut contoh file `docker-compose.yml` Jellyfin saya,
 
-https://github.com/farishafidh/Raspberry-4B-Home-Server/blob/8f1808572e83259800f706264b88a9cd1fe99fdf/docker_compose_template/jellyfin/docker-compose.yml
+https://github.com/farishafidh/Raspberry-4B-Home-Server/blob/a966fe3b7e897a65c871815f6e17aa286ce01ad9/docker_compose_template/jellyfin/docker-compose.yml#L1-L32
 
 ---
 
