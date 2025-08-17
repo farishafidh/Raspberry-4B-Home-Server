@@ -7,7 +7,7 @@ services:
       - CUPSPASSWORD=password_cups
       - TZ="Asia/Jakarta"
     volumes:
-      - /media/fileserver/docker-configs/cups:/etc/cups
+      - /media/extStorage/docker-configs/cups:/etc/cups
     ports:
       - 631:631
     devices:

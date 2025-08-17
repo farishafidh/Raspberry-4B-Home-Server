@@ -9,7 +9,7 @@ services:
       - NGINX_AUTORELOAD= #optional
       - NGINX_AUTORELOAD_WATCHLIST= #optional
     volumes:
-      - /media/fileserver/docker-configs/nginx:/config
+      - /media/extStorage/docker-configs/nginx:/config
     ports:
       - 80:80
       - 443:443
