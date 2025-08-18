@@ -3,7 +3,7 @@
 ## Table of Contents
 - [Ringkasan](#-ringkasan)
 - [Fitur Utama](#-fitur-utama)
-- [Prasyarat](#️-prasyarat)
+- [Prasyarat](#-prasyarat)
 - [Konfigurasi](#️-konfigurasi)
 - [Instalasi](#️-instalasi)
   - [Menggunakan Instalasi Script](#menggunakan-instalasi-script)
@@ -21,14 +21,14 @@
     - [Konfigurasi Pi-Hole](#konfigurasi-pi-hole)
     - [Konfigurasi NGINX](#konfigurasi-nginx)
     - [Konfigurasi Jellyfin (khusus Raspberry Pi)](#konfigurasi-jellyfin-khusus-raspberry-pi)
-- [Screenshot Server Rumah](#-screenshot-home-server)
+- [Screenshot Server Rumah](#-screenshot-server-rumah)
 
 ---
 
 ## 📜 Ringkasan
 
 <img src=screenshot/home_server.jpg alt="Foto Home Server Raspberry Pi"/>
-<div style="font-style: italic; text-align: center;">Home Server Raspberry Pi (abaikan debu)</div><br>
+<p align=center>Home Server Raspberry Pi (abaikan debu)</p><br>
 
 Server Rumah menggunakan Raspberry Pi (Single-Board Computer, SBC) yang memungkinkan penghuni rumah untuk mengakses layanan printer tanpa harus memusingkan lepas pasang kabel printer ke lebih dari 1 perangkat, layanan media seperti Netflix untuk menonton film maupun serial yang disukai, dan layanan pemblokiran iklan yang sering mengganggu kesenangan aktifitas berselancar di web.
 
@@ -344,32 +344,7 @@ networks:
 
 Berikut contoh dari file `docker-compose.yml` saya,
 
-https://github.com/farishafidh/Raspberry-4B-Home-Server/blob/8f1808572e83259800f706264b88a9cd1fe99fdf/docker_compose_template/jellyfin/docker-compose.yml#L1-L32
-
-<!-- ```bash
-services:
-  cups:
-    image: anujdatar/cups
-    container_name: cups
-    environment:
-      - CUPSADMIN=user-cups
-      - CUPSPASSWORD=password_cups
-      - TZ="Asia/Jakarta"
-    volumes:
-      - /media/extStorage/docker-configs/cups:/etc/cups
-    ports:
-      - 631:631
-    devices:
-      - /dev/bus/usb:/dev/bus/usb
-    networks:
-      - network
-    restart: unless-stopped
-
-networks:
-  network:
-    name: serverrumah
-    external: true
-``` -->
+https://github.com/farishafidh/Raspberry-4B-Server-Rumah-Sederhana/blob/487e8e419350d86f23abaff3b9d9891c24a57f76/docker_compose_template/cups/docker-compose.yml#L1-L22
 
 - #### Running Docker App
 
@@ -390,12 +365,12 @@ Akses Pi-Hole dengan menggunakan browser dengan alamat website `<IP_ADDRESS_SERV
 Atur Upstream DNS Server untuk perangkat-perangkat yang menggunakan alamat IP server sebagai DNS address supaya dapat berselancar di internet. Pada dashboard Pi-Hole, di bar kiri, buka menu Settings > DNS. Di bagian `Upstream DNS Servers`, pilih salah satu dari beberapa DNS server yang disediakan oleh Pi-Hole, atau mengisi Custom DNS Server sendiri.
 
 <img src=screenshot/pi-hole_konfig_dns.png alt="Pi-Hole Konfig Upstream DNS Servers"/>
-<div style="font-style: italic; text-align: center;">Pi-Hole: Konfigurasi Upstream DNS Server</div><br>
+<p align=center>Pi-Hole: Konfigurasi Upstream DNS Server</p><br>
 
 Buat domain name untuk masing-masing layanan (printer server, dll.). Pada dashboard Pi-Hole, di bar kiri, buka menu Settings > Local DNS Record. Di bagian `List of Local DNS records`, isi domain name untuk masing-masing layanan sesuai keinginan dengan alamat IP sesuai dengan alamat IP server.
 
 <img src=screenshot/pi-hole_konfig_dns_record.png alt="Pi-Hole Konfig Upstream DNS Servers"/>
-<div style="font-style: italic; text-align: center;">Pi-Hole: Konfigurasi Local DNS Record</div>
+<p align=center>Pi-Hole: Konfigurasi Local DNS Record</p>
 
 - #### Konfigurasi NGINX
 
@@ -457,7 +432,7 @@ devices:
 
 Berikut contoh file `docker-compose.yml` Jellyfin saya,
 
-https://github.com/farishafidh/Raspberry-4B-Home-Server/blob/a966fe3b7e897a65c871815f6e17aa286ce01ad9/docker_compose_template/jellyfin/docker-compose.yml#L1-L32
+https://github.com/farishafidh/Raspberry-4B-Server-Rumah-Sederhana/blob/487e8e419350d86f23abaff3b9d9891c24a57f76/docker_compose_template/jellyfin/docker-compose.yml#L1-L32
 
 ---
 
@@ -468,16 +443,16 @@ Instalasi Selesai
 ## 📸 Screenshot Server Rumah
 
 <img src=screenshot/cups_printer_server.png alt="CUPS Printer Server Screenshot"/>
-<div style="font-style: italic; text-align: center;">CUPS Printer: Server</div><br>
+<p align=center>CUPS Printer Server: Screenshot</p><br>
 
 <img src=screenshot/cups_printer_server_result.jpg alt="CUPS Printer Server Hasil Printing"/>
-<div style="font-style: italic; text-align: center;">CUPS Printer Server: Hasil Printing</div><br>
+<p align=center>CUPS Printer Server: Hasil Printing</p><br>
 
 <img src=screenshot/jellyfin_media_server.png alt="Jellyfin Media Server Screenshot"/>
-<div style="font-style: italic; text-align: center;">Jellyfin Media Server: Screenshot</div><br>
+<p align=center>Jellyfin Media Server: Screenshot</p><br>
 
 <img src=screenshot/pi-hole_dns_server.png alt="Pi-Hole DNS Server: Screenshot"/>
-<div style="font-style: italic; text-align: center;">Pi-Hole DNS Server: Screenshot</div><br>
+<p align=center>Pi-Hole DNS Server: Screenshot</p><br>
 
 <img src=screenshot/portainer_management_docker.png alt="Portainer Manajemen Docker: Screenshot"/>
-<div style="font-style: italic; text-align: center;">Portainer Manajemen Docker: Screenshot</div><br>
+<p align=center>Portainer Manajemen Docker: Screenshot</p><br>
