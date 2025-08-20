@@ -21,6 +21,8 @@
     - [Konfigurasi Pi-Hole](#konfigurasi-pi-hole)
     - [Konfigurasi NGINX](#konfigurasi-nginx)
     - [Konfigurasi Jellyfin (khusus Raspberry Pi)](#konfigurasi-jellyfin-khusus-raspberry-pi)
+- [Pasca Instalasi](#-pasca-instalasi)
+- [Set-up Layanan](#️-set-up-layanan)
 - [Screenshot Server Rumah](#-screenshot-server-rumah)
 
 ---
@@ -40,7 +42,7 @@ Dibuat dengan ide awal ingin memungkinkan melakukan printing dokumen tanpa harus
 - **File Server:** Memungkinkan untuk berbagi file di seluruh jaringan dan antar OS (Operating System) seperti Windows dan Linux. Menggunakan package Samba yang memanfaatkan protocol SMB (Simple Message Block)
 - **Printer Server:** Memungkinkan printing dokumen secara wireless. Menggunakan Docker App CUPS
 - **Media Server:** Memungkinkan menikmati media seperti film maupun serial seperti menggunakan Netflix. Menggunakan Docker App Jellyfin
-- **DNS-Server** Memungkinkan jaringan rumah memblokir iklan saat berselancar di web. Menggunakan Docker App Pi-Hole
+- **DNS Server** Memungkinkan jaringan rumah memblokir iklan saat berselancar di web. Menggunakan Docker App Pi-Hole
 - **Reverse Proxy:** Memungkinkan akses mudah ke layanan di atas menggunakan domain name (co. `http://jellyfin.home.server`). Menggunakan Docker App NGINX 
 - **Docker Management:** Sebagai dashboard GUI untuk manajemen Docker. Menggunakan Docker App Portainer
 
@@ -111,7 +113,7 @@ git clone https://github.com/farishafidh/Raspberry-4B-Home-Server.git
 sudo bash install.sh
 ```
 
-Setelah instalasi script selesai, disarankan untuk me-restart perangkat server
+Setelah instalasi script selesai, disarankan untuk me-restart perangkat server, dan mengikuti tahapan [Pasca Instalasi](#-pasca-instalasi)
 
 ```bash
 sudo reboot
@@ -395,7 +397,7 @@ Isi file `.conf` tersebut seperti di bawah ini,
 #Block server untuk CUPS
 server {
   listen 80;
-  server_name printer.server.rumah;
+  server_name printer.server.rumah; #ubah sesuai keinginan
 
   location / {
     #baris ini meneruskan semua request yang mengarah ke $server_name ke IP:631>
@@ -437,6 +439,47 @@ https://github.com/farishafidh/Raspberry-4B-Server-Rumah-Sederhana/blob/487e8e41
 ---
 
 Instalasi Selesai
+
+---
+
+## ✅ Pasca Instalasi
+
+Setelah instalasi di sisi Raspberry Pi atau perangkat server seelsai, langkah terakhir yang perlu dilakukan yaitu konfigurasi DNS di sisi perangkat user atau perangkat jaringan (wifi router/ONT). Konfigurasi DNS diperlukan di perangkat user atau jaringan supaya konfigurasi domain name terhadap layanan yang sudah dikonfigurasi tadi dapat berjalan.
+
+Ada 2 cara untuk konfigurasi DNS ini,
+
+1. Konfigurasi DNS di sisi perangkat user seperti PC, laptop, handphone, dll. Langkah yang perlu dilakukan yaitu pergi ke setting wifi, kemudian atur supaya alamat IP didapatkan secara static (bukan DHCP), isi alamat IP dan Gateway sesuai jaringan, kemudian isi alamat DNS pertama menjadi alamat IP server, untuk alamat DNS kedua bisa diisi bebas.
+
+2. Konfigurasi DNS di sisi perangkat jaringan seperti wifi router. Dengan cara ini, tidak perlu mengatur DNS semua perangkat user yang terhubung ke wifi router. Untuk mengubah DNS, ubah konfigurasi Internet Connection Setting menjadi mode static, dan ubah alamat DNS pertama menjadi alamat IP server, dan alamat DNS kedua diisi bebas
+
+Kedua cara ini memiliki kelebihan dan kekurangan masing-masing,
+
+Cara pertama harus merubah semua perangkat user yang hendak terhubung ke server dengan mode koneksi statik, jadi setiap perangkat selain mengubah konfigurasi DNS, perlu juga menetapkan alamat IP untuk masing-masing perangkat, keuntungan dari cara ini tidak perlu masuk ke GUI wifi router untuk merubah konfigurasi karena beberapa ISP (Internet Service Provider) mengunci hak administrasi untuk konfigurasi wifi router.
+
+Cara kedua harus masuk ke GUI wifi router dan pada umumnya memerlukan hak administrasi untuk merubah konfigurasi DNS, beberapa ISP di Indonesia tidak memberikan hak administrasi kepada pelanggan dengan alasan keamanan. Keuntungannya tidak perlu mengkonfigurasi masing-masing perangkat user yang hendak terhubung dengan server, jadi cukup mengkonfigurasi 1 perangkat (wifi router) saja.
+
+Untuk instalasi server, konfigurasi DNS, dan kondisi jaringan rumah saya yang menggunakan router kedua (menggunakan OpenWRT) sebagai wireless bridge dijelaskan di wiki [WIP]
+
+---
+
+## ⚙️ Set-up Layanan
+
+Setelah semua instalasi dan pasca instalasi selesai, masih ada 1 tahap terakhir sebelum menikmati layanan printer server dan media server. Untuk set-up [Pi-Hole](#konfigurasi-pi-hole) dan [NGINX](#konfigurasi-nginx) sudah dijelaskan pada tahap instalasi tanpa script. Set-up Docker app CUPS, Jellyfin, dan Portainer akan dijelaskan di wiki [WIP]
+
+---
+
+## 🏁 Akses Layanan
+
+Buka web browser pada perangkat dan ketik alamat web di bawah ini untuk mengakses masing-masing layanan,
+
+| Alamat Web | Keterangan |
+| :--- | :--- |
+| http://printer.server.rumah | Akses printer server |
+| http://media.server.rumah | Akses media server |
+| http://dns.server.rumah | Akses DNS server |
+| http://portainer.server.rumah | Akses manajemen docker |
+
+Untuk instalasi tanpa script, bisa disesuaikan dengan domain name yang sudah dibuat pada tahap sebelumnya. Khusus untuk akses DNS server (Pi-Hole), perlu menambahkan `/admin` di akhir domain name, co. `http://dns.server.rumah/admin`
 
 ---
 
